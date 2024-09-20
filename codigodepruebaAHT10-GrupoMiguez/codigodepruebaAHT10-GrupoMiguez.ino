@@ -1,46 +1,36 @@
-#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+#include <Adafruit_AHT10.h>
 
-// set the LCD number of columns and rows
-int lcdColumns = 16;
-int lcdRows = 2;
+// Inicializamos el sensor AHT10
+Adafruit_AHT10 aht;
 
-// set LCD address, number of columns and rows
-// if you don't know your display address, run an I2C scanner sketch
-LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
+void setup() {
+  Serial.begin(115200);  // Iniciar la comunicación serie
+  delay(1000);  // Esperar un momento para estabilizar la comunicación
 
-String messageStatic = "Hola mundo ";
-String messageToScroll = "Feliciano, Facundo, Santiago, Lean";
-
-// Function to scroll text
-// The function acepts the following arguments:
-// row: row number where the text will be displayed
-// message: message to scroll
-// delayTime: delay between each character shifting
-// lcdColumns: number of columns of your LCD
-void scrollText(int row, String message, int delayTime, int lcdColumns) {
-  for (int i=0; i < lcdColumns; i++) {
-    message = " " + message;  
-  } 
-  message = message + " "; 
-  for (int pos = 0; pos < message.length(); pos++) {
-    lcd.setCursor(0, row);
-    lcd.print(message.substring(pos, pos + lcdColumns));
-    delay(delayTime);
+  // Inicializar el sensor AHT10
+  if (!aht.begin()) {
+    Serial.println("No se pudo encontrar el sensor AHT10");
+    while (1);  // Detener el programa si no encuentra el sensor
   }
+  
+  Serial.println("Sensor AHT10 inicializado correctamente");
 }
 
-void setup(){
-  // initialize LCD
-  lcd.init();
-  // turn on LCD backlight                      
-  lcd.backlight();
-}
+void loop() {
+  sensors_event_t humidity, temp;
+  
+  // Obtenemos las lecturas de temperatura y humedad
+  aht.getEvent(&humidity, &temp);
 
-void loop(){
-  // set cursor to first column, first row
-  lcd.setCursor(0, 0);
-  // print static message
-  lcd.print(messageStatic);
-  // print scrolling message
-  scrollText(1, messageToScroll, 250, lcdColumns);
+  // Imprimir los valores en el Serial Monitor
+  Serial.print("Temperatura: ");
+  Serial.print(temp.temperature);
+  Serial.println(" °C");
+
+  Serial.print("Humedad: ");
+  Serial.print(humidity.relative_humidity);
+  Serial.println(" %");
+
+  delay(2000);  // Esperar 2 segundos antes de realizar otra lectura
 }
