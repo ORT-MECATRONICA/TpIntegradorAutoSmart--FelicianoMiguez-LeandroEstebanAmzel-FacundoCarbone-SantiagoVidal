@@ -1,4 +1,4 @@
-//Ulises Borio - Ramiro Lowden
+//Miguez-Vidal-Carbone-Amzel
 #include <Adafruit_AHTX0.h>
 #include <Wire.h>
 #include <hd44780.h>                        // Librería principal
